@@ -2,6 +2,7 @@ package ir.ashkanabd.cryptonote.view;
 
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,6 +26,7 @@ public class NoteSwipe implements SwipeToAction.SwipeListener<Note>, TextWatcher
     private TextView openButton;
     private TextView cancelButtonPasswordDialog;
     private EditText inputPasswordEdit;
+    private EditText deleteInputPasswordEdit;
 
 
     public NoteSwipe(StartActivity activity) {
@@ -39,6 +41,8 @@ public class NoteSwipe implements SwipeToAction.SwipeListener<Note>, TextWatcher
         deleteDialog.setContentView(R.layout.note_delete_layout);
         deleteText = deleteDialog.findViewById(R.id.delete_dialog_text);
         deleteButton = deleteDialog.findViewById(R.id.delete_dialog_delete_btn);
+        deleteInputPasswordEdit = deleteDialog.findViewById(R.id.delete_dialog_input);
+        deleteInputPasswordEdit.addTextChangedListener(this);
         cancelButtonDeleteDialog = deleteDialog.findViewById(R.id.delete_dialog_cancel_btn);
         deleteButton.setOnClickListener((v) -> deleteNote());
         cancelButtonDeleteDialog.setOnClickListener((v) -> deleteDialog.dismiss());
@@ -65,6 +69,11 @@ public class NoteSwipe implements SwipeToAction.SwipeListener<Note>, TextWatcher
     }
 
     private void deleteNote() {
+        if (currentItem.isEncrypted()) {
+            if (!deleteInputPasswordEdit.getText().toString().equals(currentItem.getPassword())) {
+                return;
+            }
+        }
         activity.getNoteHandler().deleteNote(currentItem);
         activity.refreshNotes();
         deleteDialog.dismiss();
@@ -75,6 +84,12 @@ public class NoteSwipe implements SwipeToAction.SwipeListener<Note>, TextWatcher
     public boolean swipeLeft(Note itemData) {
         currentItem = itemData;
         deleteText.setText("Delete note " + itemData.getTitle() + "?");
+        deleteInputPasswordEdit.setText("");
+        if (!currentItem.isEncrypted()) {
+            deleteInputPasswordEdit.setVisibility(View.GONE);
+        } else {
+            deleteInputPasswordEdit.setVisibility(View.VISIBLE);
+        }
         deleteDialog.show();
         return true;
     }
@@ -118,5 +133,11 @@ public class NoteSwipe implements SwipeToAction.SwipeListener<Note>, TextWatcher
         } else {
             inputPasswordEdit.setError("Incorrect password");
         }
+        if (s.toString().equals(currentItem.getPassword())) {
+            deleteInputPasswordEdit.clearError();
+        } else {
+            deleteInputPasswordEdit.setError("Incorrect password");
+        }
+
     }
 }

@@ -21,6 +21,7 @@ import org.json.JSONException;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -45,6 +46,7 @@ public class StartActivity extends AppCompatActivity {
     private EditText noteTitleEdit, noteDescEdit, notePasswordEdit;
     private MaterialButton noteCreateButton;
     private CheckBox noteEncryptCheck;
+    private List<File> noteList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,10 +111,16 @@ public class StartActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
+                noteTitleEdit.clearError();
                 if (s.toString().trim().isEmpty()) {
                     noteTitleEdit.setError("Note title is empty");
                 } else {
                     noteTitleEdit.clearError();
+                }
+                for (File file : noteList) {
+                    if (file.getName().equals(s.toString().trim())){
+                        noteTitleEdit.setError("Note exists");
+                    }
                 }
             }
         });
@@ -127,12 +135,17 @@ public class StartActivity extends AppCompatActivity {
     }
 
     private void createNewNote() {
-        String title = noteTitleEdit.getText().toString();
+        String title = noteTitleEdit.getText().toString().trim();
         String desc = noteDescEdit.getText().toString();
         String password = notePasswordEdit.getText().toString();
         boolean encrypted = noteEncryptCheck.isChecked();
         if (title.trim().isEmpty()) {
             return;
+        }
+        for (File file : noteList) {
+            if (file.getName().equals(title.trim())){
+                return;
+            }
         }
         if (encrypted) {
             if (password.length() > 17 || password.isEmpty()) {
@@ -162,7 +175,8 @@ public class StartActivity extends AppCompatActivity {
     }
 
     private void loadNotes() {
-        noteAdapter = new NoteAdapter(Arrays.asList(noteHandler.getNotesAsFile()), encryption);
+        noteList = Arrays.asList(noteHandler.getNotesAsFile());
+        noteAdapter = new NoteAdapter(noteList, encryption);
         recyclerView.setAdapter(noteAdapter);
     }
 
