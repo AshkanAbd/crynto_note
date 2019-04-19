@@ -27,7 +27,7 @@ public class Note {
         note.description = jsonObj.getString("desc");
         note.text = jsonObj.getString("txt");
         if (note.encrypted) {
-            note.password = encryption.defaultDecrypt(jsonObj.getString("pass"));
+            note.password = encryption.defaultDecrypt(jsonObj.getString("pass")).trim();
             note.text = encryption.decrypt(note.text, note.password);
         }
         return note;
