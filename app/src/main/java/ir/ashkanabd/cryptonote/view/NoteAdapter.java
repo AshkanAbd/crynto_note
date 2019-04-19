@@ -8,6 +8,7 @@ import org.json.JSONException;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -16,10 +17,10 @@ import ir.ashkanabd.cryptonote.R;
 import ir.ashkanabd.cryptonote.note.Note;
 
 public class NoteAdapter extends RecyclerView.Adapter<NoteViewHolder> {
-    private File[] notes;
+    private List<File> notes;
     private Encryption encryption;
 
-    public NoteAdapter(File[] notes, Encryption encryption) {
+    public NoteAdapter(List<File> notes, Encryption encryption) {
         this.notes = notes;
         this.encryption = encryption;
     }
@@ -34,7 +35,7 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull NoteViewHolder holder, int position) {
         try {
-            Note note = Note.readNote(notes[position], encryption);
+            Note note = Note.readNote(notes.get(position), encryption);
             holder.getTitle().setText(note.getTitle());
             holder.getDescription().setText(note.getDescription());
             if (note.isEncrypted()) {
@@ -55,6 +56,6 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteViewHolder> {
 
     @Override
     public int getItemCount() {
-        return notes.length;
+        return notes.size();
     }
 }

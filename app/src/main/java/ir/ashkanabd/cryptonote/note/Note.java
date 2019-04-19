@@ -23,11 +23,13 @@ public class Note {
         Note note = new Note(noteFile, encryption);
         JSONObject jsonObj = new JSONObject(readFile(noteFile));
         note.encrypted = jsonObj.getBoolean("enc");
-        note.password = encryption.defaultDecrypt(jsonObj.getString("pass"));
         note.title = jsonObj.getString("title");
         note.description = jsonObj.getString("desc");
         note.text = jsonObj.getString("txt");
-        if (note.encrypted) note.text = encryption.decrypt(note.text, note.password);
+        if (note.encrypted) {
+            note.password = encryption.defaultDecrypt(jsonObj.getString("pass"));
+            note.text = encryption.decrypt(note.text, note.password);
+        }
         return note;
     }
 
@@ -51,15 +53,24 @@ public class Note {
     public void save() throws JSONException, IOException {
         JSONObject jsonObj = new JSONObject();
         jsonObj.put("enc", encrypted);
-        jsonObj.put("pass", encryption.defaultEncrypt(password));
         jsonObj.put("title", title);
         jsonObj.put("desc", description);
         if (encrypted) {
+            normalizePassword();
+            jsonObj.put("pass", encryption.defaultEncrypt(password));
             jsonObj.put("txt", encryption.encrypt(text, password));
         } else {
             jsonObj.put("txt", text);
         }
         writeFile(path, jsonObj.toString());
+    }
+
+    private void normalizePassword() {
+        StringBuilder builder = new StringBuilder(password);
+        while (builder.length() != 16) {
+            builder.append(" ");
+        }
+        password = builder.toString();
     }
 
     private static void writeFile(File outputFile, String string) throws IOException {

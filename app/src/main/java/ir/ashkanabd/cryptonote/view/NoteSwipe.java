@@ -24,7 +24,7 @@ public class NoteSwipe implements SwipeToAction.SwipeListener<Note> {
 
     private void setupDeleteDialog() {
         deleteDialog = new MaterialDialog(activity);
-        deleteDialog.setCancelable(false);
+        deleteDialog.setCancelable(true);
         deleteDialog.setContentView(R.layout.note_delete_layout);
         deleteText = deleteDialog.findViewById(R.id.delete_dialog_text);
         deleteButton = deleteDialog.findViewById(R.id.delete_dialog_delete_btn);
