@@ -106,4 +106,8 @@ public class Encryption {
         }
         return null;
     }
+
+    public Context getContext() {
+        return context;
+    }
 }

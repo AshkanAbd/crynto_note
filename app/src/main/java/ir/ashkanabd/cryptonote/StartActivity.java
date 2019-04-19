@@ -2,36 +2,47 @@ package ir.ashkanabd.cryptonote;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 
 import org.json.JSONException;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import co.dift.ui.SwipeToAction;
 import ir.ashkanabd.cryptonote.note.Note;
 import ir.ashkanabd.cryptonote.note.NoteHandler;
+import ir.ashkanabd.cryptonote.view.NoteAdapter;
+import ir.ashkanabd.cryptonote.view.NoteSwipe;
 
 public class StartActivity extends AppCompatActivity {
 
     private NoteHandler noteHandler;
-    private ListView listView;
-    private ArrayAdapter<File> adapter;
     private Encryption encryption;
+    private RecyclerView recyclerView;
+    private SwipeRefreshLayout swipeRefresh;
+    private NoteAdapter noteAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start);
+        checkPermission();
+        findViews();
+        setup();
+        loadNotes();
+    }
+
+    private void checkPermission() {
         if (!checkStoragePermission()) {
             requestStoragePermission();
         }
@@ -39,34 +50,50 @@ public class StartActivity extends AppCompatActivity {
             while (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
                 ;
         }
-        encryption = new Encryption(this);
-        noteHandler = new NoteHandler(new File(Environment.getExternalStorageDirectory(), "/Notes"));
-        listView = findViewById(R.id.notes_listview);
-        loadNotes();
-        listView.setAdapter(adapter);
-        listView.setOnItemClickListener((_1, _2, pos, _3) -> onItemClicked(pos));
     }
 
-    private void onItemClicked(int pos) {
-        try {
-            Note note = Note.readNote(adapter.getItem(pos), encryption);
-            System.out.println(note.getPath());
-        } catch (IOException | JSONException e) {
-            e.printStackTrace();
-        }
+    private void findViews() {
+        recyclerView = findViewById(R.id.notes_recycle_view);
+        swipeRefresh = findViewById(R.id.swipeRefresh);
+    }
+
+
+    private void setup() {
+        encryption = new Encryption(this);
+        noteHandler = new NoteHandler(new File(Environment.getExternalStorageDirectory(), "/Notes"));
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setHasFixedSize(true);
+        new SwipeToAction(recyclerView, new NoteSwipe(this));
+        swipeRefresh.setOnRefreshListener(this::refreshNotes);
+        swipeRefresh.setColorSchemeColors(Color.RED, Color.BLUE);
+    }
+
+    public void refreshNotes() {
+        loadNotes();
+        new Handler().postDelayed(() -> {
+            swipeRefresh.setRefreshing(false);
+        }, 1500);
+    }
+
+    private void loadNotes() {
+        noteAdapter = new NoteAdapter(noteHandler.getNotesAsFile(), encryption);
+        recyclerView.setAdapter(noteAdapter);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadNotes();
     }
 
     public void newNote(View view) {
         try {
-            Note note = Note.createNote(noteHandler, "mynote", encryption);
+            Note.createNote(noteHandler, "mynote", encryption);
         } catch (IOException | JSONException e) {
-            e.printStackTrace();
+            // TODO: 4/19/19 catch storage error
         }
-    }
-
-    private void loadNotes() {
-        File[] notes = noteHandler.getNotesAsFile();
-        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, notes);
+        refreshNotes();
     }
 
     private boolean checkStoragePermission() {
@@ -82,4 +109,7 @@ public class StartActivity extends AppCompatActivity {
         }
     }
 
+    public NoteHandler getNoteHandler() {
+        return noteHandler;
+    }
 }

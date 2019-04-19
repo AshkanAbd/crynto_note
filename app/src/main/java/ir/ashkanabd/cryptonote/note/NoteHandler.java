@@ -14,7 +14,7 @@ public class NoteHandler {
 
     File createNewNote(String name) throws IOException {
         File newNote = new File(path, name);
-        if (newNote.exists()){
+        if (newNote.exists()) {
             throw new IOException("File exists");
         }
         if (!newNote.createNewFile())
@@ -22,11 +22,16 @@ public class NoteHandler {
         return newNote;
     }
 
-    public String[] getNotesAsString(){
+    public void deleteNote(Note note) {
+        File noteFile = note.getPath().getAbsoluteFile();
+        noteFile.delete();
+    }
+
+    public String[] getNotesAsString() {
         return path.list();
     }
 
-    public File[] getNotesAsFile(){
+    public File[] getNotesAsFile() {
         return path.listFiles();
     }
 }
