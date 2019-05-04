@@ -11,14 +11,9 @@ import java.io.ObjectInputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Encryption {
-    private Context context;
+public abstract class Encryption {
 
-    public Encryption(Context context) {
-        this.context = context;
-    }
-
-    private String readKey() throws Exception {
+    private static String readKey(Context context) throws Exception {
         ObjectInputStream ois = new ObjectInputStream(context.getAssets().open("k"));
         Map<Integer, Character> map = (HashMap<Integer, Character>) ois.readObject();
         byte[] buf = new byte[map.size()];
@@ -28,7 +23,7 @@ public class Encryption {
         return new String(buf);
     }
 
-    private String readInitVector() throws Exception {
+    private static String readInitVector(Context context) throws Exception {
         ObjectInputStream ois = new ObjectInputStream(context.getAssets().open("iv"));
         Map<Integer, Character> map = (HashMap<Integer, Character>) ois.readObject();
         byte[] buf = new byte[map.size()];
@@ -38,9 +33,9 @@ public class Encryption {
         return new String(buf);
     }
 
-    public String encrypt(String value, final String key) {
+    public static String encrypt(String value, final String key, Context context) {
         try {
-            IvParameterSpec iv = new IvParameterSpec(readInitVector().getBytes("UTF-8"));
+            IvParameterSpec iv = new IvParameterSpec(readInitVector(context).getBytes("UTF-8"));
             SecretKeySpec skeySpec = new SecretKeySpec(key.getBytes("UTF-8"), "AES");
 
             Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
@@ -55,9 +50,9 @@ public class Encryption {
         return null;
     }
 
-    public String decrypt(String encrypted, final String key) {
+    public static String decrypt(String encrypted, final String key, Context context) {
         try {
-            IvParameterSpec iv = new IvParameterSpec(readInitVector().getBytes("UTF-8"));
+            IvParameterSpec iv = new IvParameterSpec(readInitVector(context).getBytes("UTF-8"));
             SecretKeySpec skeySpec = new SecretKeySpec(key.getBytes("UTF-8"), "AES");
 
             Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
@@ -73,10 +68,10 @@ public class Encryption {
     }
 
 
-    public String defaultEncrypt(String value) {
+    public static String defaultEncrypt(String value, Context context) {
         try {
-            IvParameterSpec iv = new IvParameterSpec(readInitVector().getBytes("UTF-8"));
-            SecretKeySpec skeySpec = new SecretKeySpec(readKey().getBytes("UTF-8"), "AES");
+            IvParameterSpec iv = new IvParameterSpec(readInitVector(context).getBytes("UTF-8"));
+            SecretKeySpec skeySpec = new SecretKeySpec(readKey(context).getBytes("UTF-8"), "AES");
 
             Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
             cipher.init(Cipher.ENCRYPT_MODE, skeySpec, iv);
@@ -90,10 +85,10 @@ public class Encryption {
         return null;
     }
 
-    public String defaultDecrypt(String encrypted) {
+    public static String defaultDecrypt(String encrypted, Context context) {
         try {
-            IvParameterSpec iv = new IvParameterSpec(readInitVector().getBytes("UTF-8"));
-            SecretKeySpec skeySpec = new SecretKeySpec(readKey().getBytes("UTF-8"), "AES");
+            IvParameterSpec iv = new IvParameterSpec(readInitVector(context).getBytes("UTF-8"));
+            SecretKeySpec skeySpec = new SecretKeySpec(readKey(context).getBytes("UTF-8"), "AES");
 
             Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
             cipher.init(Cipher.DECRYPT_MODE, skeySpec, iv);
@@ -105,9 +100,5 @@ public class Encryption {
             e.printStackTrace();
         }
         return null;
-    }
-
-    public Context getContext() {
-        return context;
     }
 }

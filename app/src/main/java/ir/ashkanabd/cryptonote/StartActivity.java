@@ -1,6 +1,7 @@
 package ir.ashkanabd.cryptonote;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
@@ -37,14 +38,12 @@ import ir.ashkanabd.cryptonote.view.NoteSwipe;
 
 public class StartActivity extends AppCompatActivity {
 
+    public static Context appContext;
     private NoteHandler noteHandler;
-    private Encryption encryption;
     private RecyclerView recyclerView;
     private SwipeRefreshLayout swipeRefresh;
-    private NoteAdapter noteAdapter;
     private MaterialDialog createNoteDialog;
     private EditText noteTitleEdit, noteDescEdit, notePasswordEdit;
-    private MaterialButton noteCreateButton;
     private CheckBox noteEncryptCheck;
     private List<File> noteList;
 
@@ -52,6 +51,7 @@ public class StartActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start);
+        appContext = this;
         checkPermission();
         findViews();
         setup();
@@ -75,7 +75,6 @@ public class StartActivity extends AppCompatActivity {
 
 
     private void setup() {
-        encryption = new Encryption(this);
         noteHandler = new NoteHandler(new File(Environment.getExternalStorageDirectory(), "/Notes"));
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         DividerItemDecoration divider = new DividerItemDecoration(this, DividerItemDecoration.VERTICAL);
@@ -95,7 +94,7 @@ public class StartActivity extends AppCompatActivity {
         noteTitleEdit = createNoteDialog.findViewById(R.id.new_note_title);
         noteDescEdit = createNoteDialog.findViewById(R.id.new_note_desc);
         notePasswordEdit = createNoteDialog.findViewById(R.id.new_note_password);
-        noteCreateButton = createNoteDialog.findViewById(R.id.new_note_create);
+        MaterialButton noteCreateButton = createNoteDialog.findViewById(R.id.new_note_create);
         noteEncryptCheck = createNoteDialog.findViewById(R.id.new_note_encrypt);
         createNoteDialog.setCancelable(true);
         noteTitleEdit.addTextChangedListener(new TextWatcher() {
@@ -118,7 +117,7 @@ public class StartActivity extends AppCompatActivity {
                     noteTitleEdit.clearError();
                 }
                 for (File file : noteList) {
-                    if (file.getName().equals(s.toString().trim())){
+                    if (file.getName().equals(s.toString().trim())) {
                         noteTitleEdit.setError("Note exists");
                     }
                 }
@@ -143,7 +142,7 @@ public class StartActivity extends AppCompatActivity {
             return;
         }
         for (File file : noteList) {
-            if (file.getName().equals(title.trim())){
+            if (file.getName().equals(title.trim())) {
                 return;
             }
         }
@@ -153,7 +152,7 @@ public class StartActivity extends AppCompatActivity {
             }
         }
         try {
-            Note newNote = Note.createNote(noteHandler, title, encryption);
+            Note newNote = Note.createNote(noteHandler, title, this);
             newNote.setDescription(desc);
             newNote.setEncrypted(encrypted);
             newNote.setPassword(password);
@@ -176,7 +175,7 @@ public class StartActivity extends AppCompatActivity {
 
     private void loadNotes() {
         noteList = Arrays.asList(noteHandler.getNotesAsFile());
-        noteAdapter = new NoteAdapter(noteList, encryption);
+        NoteAdapter noteAdapter = new NoteAdapter(noteList, this);
         recyclerView.setAdapter(noteAdapter);
     }
 

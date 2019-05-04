@@ -8,8 +8,11 @@ public class NoteHandler {
 
     public NoteHandler(File path) {
         this.path = path;
-        if (!path.exists())
+        if (!path.exists()) {
             path.mkdirs();
+            path.setReadable(true, true);
+            path.setWritable(true, true);
+        }
     }
 
     File createNewNote(String name) throws IOException {

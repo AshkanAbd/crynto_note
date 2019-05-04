@@ -1,11 +1,14 @@
 package ir.ashkanabd.cryptonote.note;
 
+import android.content.Context;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Map;
 import java.util.Scanner;
 
 import ir.ashkanabd.cryptonote.Encryption;
@@ -17,25 +20,25 @@ public class Note {
     private String text;
     private boolean encrypted;
     private File path;
-    private Encryption encryption;
+    private Context context;
 
-    public static Note readNote(File noteFile, Encryption encryption) throws IOException, JSONException {
-        Note note = new Note(noteFile, encryption);
+    public static Note readNote(File noteFile, Context context) throws IOException, JSONException {
+        Note note = new Note(noteFile, context);
         JSONObject jsonObj = new JSONObject(readFile(noteFile));
         note.encrypted = jsonObj.getBoolean("enc");
         note.title = jsonObj.getString("title");
         note.description = jsonObj.getString("desc");
         note.text = jsonObj.getString("txt");
         if (note.encrypted) {
-            note.password = encryption.defaultDecrypt(jsonObj.getString("pass")).trim();
-            note.text = encryption.decrypt(note.text, note.password);
+            note.password = Encryption.defaultDecrypt(jsonObj.getString("pass"), context).trim();
+            note.text = Encryption.decrypt(note.text, note.password, context);
         }
         return note;
     }
 
-    public static Note createNote(NoteHandler noteHandler, String noteName, Encryption encryption) throws IOException, JSONException {
+    public static Note createNote(NoteHandler noteHandler, String noteName, Context context) throws IOException, JSONException {
         File noteFile = noteHandler.createNewNote(noteName);
-        Note note = new Note(noteFile, encryption);
+        Note note = new Note(noteFile, context);
         note.save();
         return note;
     }
@@ -57,8 +60,8 @@ public class Note {
         jsonObj.put("desc", description);
         if (encrypted) {
             normalizePassword();
-            jsonObj.put("pass", encryption.defaultEncrypt(password));
-            jsonObj.put("txt", encryption.encrypt(text, password));
+            jsonObj.put("pass", Encryption.defaultEncrypt(password, context));
+            jsonObj.put("txt", Encryption.encrypt(text, password, context));
         } else {
             jsonObj.put("txt", text);
         }
@@ -123,13 +126,13 @@ public class Note {
         return path;
     }
 
-    private Note(File path, Encryption encryption) {
+    private Note(File path, Context context) {
         this.path = path;
         this.text = "";
         this.encrypted = false;
         this.description = "";
         this.title = "";
         this.password = "";
-        this.encryption = encryption;
+        this.context = context;
     }
 }

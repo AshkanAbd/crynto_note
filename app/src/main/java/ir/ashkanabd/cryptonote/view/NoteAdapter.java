@@ -1,5 +1,6 @@
 package ir.ashkanabd.cryptonote.view;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,17 +13,16 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import ir.ashkanabd.cryptonote.Encryption;
 import ir.ashkanabd.cryptonote.R;
 import ir.ashkanabd.cryptonote.note.Note;
 
 public class NoteAdapter extends RecyclerView.Adapter<NoteViewHolder> {
     private List<File> notes;
-    private Encryption encryption;
+    private Context context;
 
-    public NoteAdapter(List<File> notes, Encryption encryption) {
+    public NoteAdapter(List<File> notes, Context context) {
         this.notes = notes;
-        this.encryption = encryption;
+        this.context = context;
     }
 
     @NonNull
@@ -35,13 +35,13 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull NoteViewHolder holder, int position) {
         try {
-            Note note = Note.readNote(notes.get(position), encryption);
+            Note note = Note.readNote(notes.get(position), context);
             holder.getTitle().setText(note.getTitle());
             holder.getDescription().setText(note.getDescription());
             if (note.isEncrypted()) {
-                holder.getEncryption().setBackground(encryption.getContext().getResources().getDrawable(R.drawable.encrypt_icon));
+                holder.getEncryption().setBackground(context.getResources().getDrawable(R.drawable.encrypt_icon));
             } else {
-                holder.getEncryption().setBackground(encryption.getContext().getResources().getDrawable(R.drawable.decrypted_icon));
+                holder.getEncryption().setBackground(context.getResources().getDrawable(R.drawable.decrypted_icon));
             }
             holder.data = note;
         } catch (IOException | JSONException e) {
