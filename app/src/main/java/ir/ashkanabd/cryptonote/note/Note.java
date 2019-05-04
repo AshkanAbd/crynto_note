@@ -8,22 +8,21 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Map;
+import java.io.Serializable;
 import java.util.Scanner;
 
 import ir.ashkanabd.cryptonote.Encryption;
 
-public class Note {
+public class Note implements Serializable {
     private String title;
     private String description;
     private String password;
     private String text;
     private boolean encrypted;
     private File path;
-    private Context context;
 
     public static Note readNote(File noteFile, Context context) throws IOException, JSONException {
-        Note note = new Note(noteFile, context);
+        Note note = new Note(noteFile);
         JSONObject jsonObj = new JSONObject(readFile(noteFile));
         note.encrypted = jsonObj.getBoolean("enc");
         note.title = jsonObj.getString("title");
@@ -38,8 +37,8 @@ public class Note {
 
     public static Note createNote(NoteHandler noteHandler, String noteName, Context context) throws IOException, JSONException {
         File noteFile = noteHandler.createNewNote(noteName);
-        Note note = new Note(noteFile, context);
-        note.save();
+        Note note = new Note(noteFile);
+        note.save(context);
         return note;
     }
 
@@ -53,7 +52,7 @@ public class Note {
         return builder.toString();
     }
 
-    public void save() throws JSONException, IOException {
+    public void save(Context context) throws JSONException, IOException {
         JSONObject jsonObj = new JSONObject();
         jsonObj.put("enc", encrypted);
         jsonObj.put("title", title);
@@ -126,13 +125,12 @@ public class Note {
         return path;
     }
 
-    private Note(File path, Context context) {
+    private Note(File path) {
         this.path = path;
         this.text = "";
         this.encrypted = false;
         this.description = "";
         this.title = "";
         this.password = "";
-        this.context = context;
     }
 }

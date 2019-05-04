@@ -157,7 +157,7 @@ public class StartActivity extends AppCompatActivity {
             newNote.setEncrypted(encrypted);
             newNote.setPassword(password);
             newNote.setTitle(title);
-            newNote.save();
+            newNote.save(this);
             createNoteDialog.dismiss();
             refreshNotes();
         } catch (IOException | JSONException e) {

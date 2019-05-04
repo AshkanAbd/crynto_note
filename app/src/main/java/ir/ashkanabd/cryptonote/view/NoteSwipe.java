@@ -19,12 +19,8 @@ public class NoteSwipe implements SwipeToAction.SwipeListener<Note>, TextWatcher
     private MaterialDialog deleteDialog;
     private MaterialDialog passwordDialog;
     private TextView deleteText;
-    private TextView deleteButton;
-    private TextView cancelButtonDeleteDialog;
     private Note currentItem;
     private TextView passwordText;
-    private TextView openButton;
-    private TextView cancelButtonPasswordDialog;
     private EditText inputPasswordEdit;
     private EditText deleteInputPasswordEdit;
 
@@ -40,10 +36,10 @@ public class NoteSwipe implements SwipeToAction.SwipeListener<Note>, TextWatcher
         deleteDialog.setCancelable(true);
         deleteDialog.setContentView(R.layout.note_delete_layout);
         deleteText = deleteDialog.findViewById(R.id.delete_dialog_text);
-        deleteButton = deleteDialog.findViewById(R.id.delete_dialog_delete_btn);
+        TextView deleteButton = deleteDialog.findViewById(R.id.delete_dialog_delete_btn);
         deleteInputPasswordEdit = deleteDialog.findViewById(R.id.delete_dialog_input);
         deleteInputPasswordEdit.addTextChangedListener(this);
-        cancelButtonDeleteDialog = deleteDialog.findViewById(R.id.delete_dialog_cancel_btn);
+        TextView cancelButtonDeleteDialog = deleteDialog.findViewById(R.id.delete_dialog_cancel_btn);
         deleteButton.setOnClickListener((v) -> deleteNote());
         cancelButtonDeleteDialog.setOnClickListener((v) -> deleteDialog.dismiss());
     }
@@ -53,8 +49,8 @@ public class NoteSwipe implements SwipeToAction.SwipeListener<Note>, TextWatcher
         passwordDialog.setCancelable(true);
         passwordDialog.setContentView(R.layout.note_password_layout);
         passwordText = passwordDialog.findViewById(R.id.password_dialog_text);
-        openButton = passwordDialog.findViewById(R.id.password_dialog_open_btn);
-        cancelButtonPasswordDialog = passwordDialog.findViewById(R.id.password_dialog_cancel_btn);
+        TextView openButton = passwordDialog.findViewById(R.id.password_dialog_open_btn);
+        TextView cancelButtonPasswordDialog = passwordDialog.findViewById(R.id.password_dialog_cancel_btn);
         inputPasswordEdit = passwordDialog.findViewById(R.id.password_dialog_input);
         openButton.setOnClickListener(_1 -> openNote());
         cancelButtonPasswordDialog.setOnClickListener(_1 -> passwordDialog.dismiss());
@@ -63,9 +59,9 @@ public class NoteSwipe implements SwipeToAction.SwipeListener<Note>, TextWatcher
 
     private void openNote() {
         if (inputPasswordEdit.getError() == null) {
+            //todo send to open note Activity
             Toast.makeText(activity, "Note opened", Toast.LENGTH_SHORT).show();
         }
-        //todo send to open note Activity
     }
 
     private void deleteNote() {
