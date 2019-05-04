@@ -36,6 +36,7 @@
         android:text=""
         android:textSize="15sp"
         android:theme="@style/Material.Widget.EditText"
+        app:et_dividerAnimDuration="350"
         app:et_dividerColor="@color/colorPrimary"
         app:et_dividerErrorColor="#F00"
         app:et_error="Incorrect password"

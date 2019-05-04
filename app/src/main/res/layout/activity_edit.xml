@@ -1,6 +1,103 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:ignore="HardcodedText">
+
+    <com.rey.material.widget.EditText
+        android:id="@+id/edit_note_title"
+        style="@style/Material.Widget.EditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        android:enabled="false"
+        android:hint="Title"
+        android:inputType="text"
+        android:textColor="#000"
+        android:textSize="18sp"
+        app:et_dividerColor="@color/colorPrimary"
+        app:et_labelEnable="true"
+        app:et_labelTextColor="@color/colorPrimary" />
+
+    <com.rey.material.widget.EditText
+        android:id="@+id/edit_note_description"
+        style="@style/Material.Widget.EditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/edit_note_title"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        android:enabled="false"
+        android:hint="Description"
+        android:inputType="textShortMessage"
+        android:textColor="#000"
+        android:textSize="18sp"
+        app:et_dividerColor="@color/colorPrimary"
+        app:et_labelEnable="true"
+        app:et_labelTextColor="@color/colorPrimary" />
+
+    <com.rey.material.widget.EditText
+        android:id="@+id/edit_note_password"
+        style="@style/Material.Widget.EditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/edit_note_description"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        android:enabled="false"
+        android:hint="Password"
+        android:inputType="textPassword"
+        android:textColor="#000"
+        android:textSize="18sp"
+        app:et_dividerAnimDuration="350"
+        app:et_dividerColor="@color/colorPrimary"
+        app:et_dividerErrorColor="#f00"
+        app:et_labelEnable="true"
+        app:et_labelTextColor="@color/colorPrimary"
+        app:et_supportMaxChars="16"
+        app:et_supportMode="charCounter"
+        app:et_supportTextColor="@color/colorPrimary"
+        app:et_supportTextErrorColor="#f00" />
+
+    <TextView
+        android:id="@+id/text_divider"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_below="@id/edit_note_password"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginEnd="5dp"
+        android:background="@color/colorPrimaryDark" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/text_divider"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp">
+
+        <com.rey.material.widget.EditText
+            android:id="@+id/edit_note_text"
+            style="@style/Material.Widget.EditText"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:enabled="false"
+            android:hint="Text"
+            android:inputType="textMultiLine"
+            android:textColor="#000"
+            android:textSize="18sp"
+            app:et_dividerColor="@color/colorPrimary"
+            app:et_labelEnable="true"
+            app:et_labelTextColor="@color/colorPrimary" />
+    </ScrollView>
 
 </RelativeLayout>

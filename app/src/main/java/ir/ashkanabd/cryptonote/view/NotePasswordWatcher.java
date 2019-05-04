@@ -4,7 +4,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 
 
-public class NewNotePasswordWatcher implements TextWatcher {
+public class NotePasswordWatcher implements TextWatcher {
     private boolean replaceFlag = false;
 
     @Override

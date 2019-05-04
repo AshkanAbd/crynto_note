@@ -2,6 +2,7 @@ package ir.ashkanabd.cryptonote;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
@@ -24,19 +25,23 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import co.dift.ui.SwipeToAction;
+import es.dmoral.toasty.Toasty;
 import ir.ashkanabd.cryptonote.note.Note;
 import ir.ashkanabd.cryptonote.note.NoteHandler;
-import ir.ashkanabd.cryptonote.view.NewNotePasswordWatcher;
+import ir.ashkanabd.cryptonote.view.NotePasswordWatcher;
 import ir.ashkanabd.cryptonote.view.NoteAdapter;
 import ir.ashkanabd.cryptonote.view.NoteSwipe;
 
 public class StartActivity extends AppCompatActivity {
+
+    public static int EDIT_RESULT = 10101;
 
     public static Context appContext;
     private NoteHandler noteHandler;
@@ -46,6 +51,7 @@ public class StartActivity extends AppCompatActivity {
     private EditText noteTitleEdit, noteDescEdit, notePasswordEdit;
     private CheckBox noteEncryptCheck;
     private List<File> noteList;
+    private boolean backPress = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,7 +129,7 @@ public class StartActivity extends AppCompatActivity {
                 }
             }
         });
-        notePasswordEdit.addTextChangedListener(new NewNotePasswordWatcher());
+        notePasswordEdit.addTextChangedListener(new NotePasswordWatcher());
         noteEncryptCheck.setOnCheckedChangeListener((_1, checked) -> this.encryptChecKChange(checked));
         noteCreateButton.setOnClickListener(v -> createNewNote());
     }
@@ -170,18 +176,13 @@ public class StartActivity extends AppCompatActivity {
         loadNotes();
         new Handler().postDelayed(() -> {
             swipeRefresh.setRefreshing(false);
-        }, 1500);
+        }, 1000);
     }
 
     private void loadNotes() {
         noteList = Arrays.asList(noteHandler.getNotesAsFile());
         NoteAdapter noteAdapter = new NoteAdapter(noteList, this);
         recyclerView.setAdapter(noteAdapter);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
     }
 
     public void newNote(View view) {
@@ -209,5 +210,23 @@ public class StartActivity extends AppCompatActivity {
 
     public NoteHandler getNoteHandler() {
         return noteHandler;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == EDIT_RESULT) {
+            loadNotes();
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (backPress) {
+            super.onBackPressed();
+        } else {
+            Toasty.warning(this, "Press back agian", Toasty.LENGTH_SHORT).show();
+            new Handler().postDelayed(() -> backPress = true, 2000);
+        }
     }
 }

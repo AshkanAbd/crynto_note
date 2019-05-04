@@ -1,15 +1,16 @@
 package ir.ashkanabd.cryptonote.view;
 
+import android.content.Intent;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.rey.material.widget.EditText;
 
 import co.dift.ui.SwipeToAction;
+import ir.ashkanabd.cryptonote.EditActivity;
 import ir.ashkanabd.cryptonote.R;
 import ir.ashkanabd.cryptonote.StartActivity;
 import ir.ashkanabd.cryptonote.note.Note;
@@ -55,12 +56,15 @@ public class NoteSwipe implements SwipeToAction.SwipeListener<Note>, TextWatcher
         openButton.setOnClickListener(_1 -> openNote());
         cancelButtonPasswordDialog.setOnClickListener(_1 -> passwordDialog.dismiss());
         inputPasswordEdit.addTextChangedListener(this);
+        inputPasswordEdit.clearError();
     }
 
     private void openNote() {
-        if (inputPasswordEdit.getError() == null) {
-            //todo send to open note Activity
-            Toast.makeText(activity, "Note opened", Toast.LENGTH_SHORT).show();
+        if (inputPasswordEdit.getError() == null || !currentItem.isEncrypted()) {
+            Intent editIntent = new Intent(activity, EditActivity.class);
+            editIntent.putExtra("note", currentItem);
+            activity.startActivityForResult(editIntent, StartActivity.EDIT_RESULT);
+            passwordDialog.dismiss();
         }
     }
 

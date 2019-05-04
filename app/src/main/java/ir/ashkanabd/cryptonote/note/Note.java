@@ -29,8 +29,9 @@ public class Note implements Serializable {
         note.description = jsonObj.getString("desc");
         note.text = jsonObj.getString("txt");
         if (note.encrypted) {
-            note.password = Encryption.defaultDecrypt(jsonObj.getString("pass"), context).trim();
+            note.password = Encryption.defaultDecrypt(jsonObj.getString("pass"), context);
             note.text = Encryption.decrypt(note.text, note.password, context);
+            note.password = note.password.trim();
         }
         return note;
     }
