@@ -22,6 +22,7 @@ import org.json.JSONException;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -38,6 +39,7 @@ import ir.ashkanabd.cryptonote.note.NoteHandler;
 import ir.ashkanabd.cryptonote.view.NotePasswordWatcher;
 import ir.ashkanabd.cryptonote.view.NoteAdapter;
 import ir.ashkanabd.cryptonote.view.NoteSwipe;
+import ir.ashkanabd.cryptonote.view.NoteTitleWatcher;
 
 public class StartActivity extends AppCompatActivity {
 
@@ -50,8 +52,9 @@ public class StartActivity extends AppCompatActivity {
     private MaterialDialog createNoteDialog;
     private EditText noteTitleEdit, noteDescEdit, notePasswordEdit;
     private CheckBox noteEncryptCheck;
-    private List<File> noteList;
+    private ArrayList<File> noteList;
     private boolean backPress = false;
+    private NoteTitleWatcher titleWatcher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,32 +106,7 @@ public class StartActivity extends AppCompatActivity {
         MaterialButton noteCreateButton = createNoteDialog.findViewById(R.id.new_note_create);
         noteEncryptCheck = createNoteDialog.findViewById(R.id.new_note_encrypt);
         createNoteDialog.setCancelable(true);
-        noteTitleEdit.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                noteTitleEdit.clearError();
-                if (s.toString().trim().isEmpty()) {
-                    noteTitleEdit.setError("Note title is empty");
-                } else {
-                    noteTitleEdit.clearError();
-                }
-                for (File file : noteList) {
-                    if (file.getName().equals(s.toString().trim())) {
-                        noteTitleEdit.setError("Note exists");
-                    }
-                }
-            }
-        });
+        titleWatcher = new NoteTitleWatcher(noteTitleEdit, noteList);
         notePasswordEdit.addTextChangedListener(new NotePasswordWatcher());
         noteEncryptCheck.setOnCheckedChangeListener((_1, checked) -> this.encryptChecKChange(checked));
         noteCreateButton.setOnClickListener(v -> createNewNote());
@@ -180,7 +158,8 @@ public class StartActivity extends AppCompatActivity {
     }
 
     private void loadNotes() {
-        noteList = Arrays.asList(noteHandler.getNotesAsFile());
+        noteList = new ArrayList<>(Arrays.asList(noteHandler.getNotesAsFile()));
+        titleWatcher.setNoteList(noteList);
         NoteAdapter noteAdapter = new NoteAdapter(noteList, this);
         recyclerView.setAdapter(noteAdapter);
     }
@@ -210,6 +189,10 @@ public class StartActivity extends AppCompatActivity {
 
     public NoteHandler getNoteHandler() {
         return noteHandler;
+    }
+
+    public ArrayList<File> getNoteList() {
+        return noteList;
     }
 
     @Override

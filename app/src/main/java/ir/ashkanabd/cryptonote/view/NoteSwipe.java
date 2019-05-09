@@ -63,6 +63,7 @@ public class NoteSwipe implements SwipeToAction.SwipeListener<Note>, TextWatcher
         if (inputPasswordEdit.getError() == null || !currentItem.isEncrypted()) {
             Intent editIntent = new Intent(activity, EditActivity.class);
             editIntent.putExtra("note", currentItem);
+            editIntent.putExtra("allNotes", activity.getNoteList());
             activity.startActivityForResult(editIntent, StartActivity.EDIT_RESULT);
             passwordDialog.dismiss();
         }

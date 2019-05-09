@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import es.dmoral.toasty.Toasty;
 import ir.ashkanabd.cryptonote.note.Note;
 import ir.ashkanabd.cryptonote.view.NotePasswordWatcher;
+import ir.ashkanabd.cryptonote.view.NoteTitleWatcher;
 
 import android.os.Bundle;
 import android.view.View;
@@ -16,7 +17,9 @@ import com.rey.material.widget.TextView;
 
 import org.json.JSONException;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 
 public class EditActivity extends AppCompatActivity {
@@ -25,6 +28,7 @@ public class EditActivity extends AppCompatActivity {
     private static boolean SAVE_MODE = false;
 
     private Note currentNote;
+    private ArrayList<File> allNotes;
     private EditText titleEdit;
     private EditText descriptionEdit;
     private EditText passwordEdit;
@@ -32,7 +36,7 @@ public class EditActivity extends AppCompatActivity {
     private Button noteActionButton;
     private TextView titleTextView;
     private boolean mode = SAVE_MODE;
-
+    private NoteTitleWatcher titleWatcher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +50,7 @@ public class EditActivity extends AppCompatActivity {
 
     private void findViews() {
         titleEdit = findViewById(R.id.edit_note_title);
+        titleWatcher = new NoteTitleWatcher(titleEdit, allNotes);
         descriptionEdit = findViewById(R.id.edit_note_description);
         passwordEdit = findViewById(R.id.edit_note_password);
         passwordEdit.addTextChangedListener(new NotePasswordWatcher());
@@ -58,6 +63,9 @@ public class EditActivity extends AppCompatActivity {
             finish();
         }
         currentNote = (Note) getIntent().getExtras().get("note");
+        allNotes = (ArrayList<File>) getIntent().getExtras().get("allNotes");
+        allNotes.remove(currentNote.getPath());
+        titleWatcher.setNoteList(allNotes);
         if (currentNote == null) {
             Toasty.error(this, "Something went wrong", Toasty.LENGTH_SHORT).show();
             finish();
@@ -83,15 +91,19 @@ public class EditActivity extends AppCompatActivity {
     private void noteAction() {
         mode = !mode;
         if (mode == SAVE_MODE) {
-            if (passwordEdit.getVisibility() == View.GONE || passwordEdit.getText().length() < 17) {
+            if (passwordEdit.getVisibility() != View.GONE && passwordEdit.getText().length() > 16) {
+                Toasty.error(this, "Password too long.", Toasty.LENGTH_SHORT).show();
+            } else if (passwordEdit.getVisibility() != View.GONE && passwordEdit.getText().length() < 1) {
+                Toasty.error(this, "Password too short.", Toasty.LENGTH_SHORT).show();
+            } else if (titleEdit.getError() != null) {
+                Toasty.error(this, "Invalid note title", Toasty.LENGTH_SHORT).show();
+            } else {
                 noteActionButton.setBackgroundDrawable(getResources().getDrawable(R.drawable.edit_icon));
                 titleEdit.setEnabled(false);
                 descriptionEdit.setEnabled(false);
                 passwordEdit.setEnabled(false);
                 textEdit.setEnabled(false);
                 save();
-            } else {
-                Toasty.error(this, "Password too long", Toasty.LENGTH_SHORT).show();
             }
         }
         if (mode == EDIT_MODE) {
@@ -104,6 +116,10 @@ public class EditActivity extends AppCompatActivity {
     }
 
     private void save() {
+        File preFile = currentNote.getPath();
+        preFile.delete();
+        String title = titleEdit.getText().toString();
+        currentNote.setPath(new File(preFile.getParent(), title));
         currentNote.setTitle(titleEdit.getText().toString());
         currentNote.setDescription(descriptionEdit.getText().toString());
         currentNote.setText(textEdit.getText().toString());

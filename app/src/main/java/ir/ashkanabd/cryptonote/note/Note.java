@@ -126,6 +126,10 @@ public class Note implements Serializable {
         return path;
     }
 
+    public void setPath(File path) {
+        this.path = path;
+    }
+
     private Note(File path) {
         this.path = path;
         this.text = "";
