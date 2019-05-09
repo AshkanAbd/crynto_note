@@ -9,7 +9,7 @@ public class NoteHandler {
     public NoteHandler(File path) {
         this.path = path;
         if (!path.exists()) {
-            path.mkdirs();
+            path.mkdir();
             path.setReadable(true, true);
             path.setWritable(true, true);
         }
